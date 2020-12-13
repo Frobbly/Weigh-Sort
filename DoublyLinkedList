@@ -1,0 +1,285 @@
+public class DoublyLinkedList {
+   class Node {
+   public int value;
+   public Node previous, next;
+   
+      public Node(int value) {
+         this.value = value;
+         this.previous = this.next = null;
+      }
+   }
+   
+   
+   
+   public Node head, tail, middle, successor, current;
+   public int counter, balance;
+   
+   public LinkedList() {
+      this.head = this.tail = this.middle = null;
+      this.counter = this.balance = 0;
+   }
+   
+   public int middle() {
+      if (middle == null) {
+         return 0;
+      }
+      int z = middle.value;
+      return z;
+   }
+   private boolean isEven(int count) {
+      return (count % 2 == 0);
+   }
+   
+   public boolean isEmpty() {
+      return (counter == 0 || head == null || tail == null);
+   }
+   
+   private void weighLeft() {
+      balance--;
+   }
+   private void weighRight() {
+      balance++;
+   }
+   
+   private Node balance(Node middle, int count) {
+      if (!isEven(counter)) {
+         if (balance == -2) {
+            successor = middle.previous;
+            middle = successor;
+            balance = 0;
+            return middle;
+         }
+         else if (balance == 2) {
+            successor = middle.next;
+            middle = successor;
+            balance = 0;
+            return middle;
+         }
+      }
+      return middle;
+   }
+   
+   public int sum() {
+      Node current = head;
+      int sum = 0;
+      while (current != null) {
+         sum = sum + current.value;
+         current = current.next;
+      }
+      return sum;
+   }
+   
+   public void print() {
+      Node current = head;
+      while (current != null) {
+         System.out.print(current.value + ", ");
+         current = current.next;
+      }
+   }
+   
+   public void insertSort(int value) {
+      Node latest = new Node(value);
+      Node current;
+      counter++;
+      // Set head and tail
+      if (counter <= 2) {
+         if (isEmpty()) {
+            head = tail = latest;
+         }
+         else if (value > head.value) {
+            head.previous = latest;
+            latest.next = head;
+            tail = head;
+            head = latest;
+         }
+         else if (value < head.value) {
+            head.next = latest;
+            latest.previous = head;
+            tail = latest;
+         }
+      } // FIXED
+      // Set middle
+      else if (counter == 3) {
+         if (value < head.value && value > tail.value || value == head.value || value == tail.value) {
+            middle = latest;
+            middle.previous = head;
+            middle.next = tail;
+            head.next = middle;
+            tail.previous = middle;
+         } //FIXED
+         else if (value > head.value) {
+            head.previous = latest;
+            latest.next = head;
+            middle = head;
+            head = latest;
+            middle.previous = head;
+            middle.next = tail;
+            head.next = middle;
+            tail.previous = middle;
+         } //FIXED
+         else if (value < tail.value) {
+            head.next = latest;
+            latest.previous = head;
+            middle = tail;
+            tail = latest;
+            middle.previous = head;
+            middle.next = tail;
+            head.next = middle;
+            tail.previous = middle;
+         }
+      } // FIXED
+
+      else {
+         // Prepend
+         if (value > head.value) {
+            head.previous = latest;
+            latest.next = head;
+            head = latest;
+            weighLeft();
+            middle = balance(middle, counter);
+         }
+         // Append
+         else if (value < tail.value) {
+            tail.next = latest;
+            latest.previous = tail;
+            tail = latest;
+            weighRight();
+            middle = balance(middle, counter);
+         }
+         // Insert Middle
+         else if (value == middle.value) {
+            latest.next = middle.next;
+            latest.previous = middle;
+            middle.next = latest;
+            weighRight();
+            middle = balance(middle, counter);
+         } // FIXED
+         // Insert Left Wing
+         else if (value < head.value && value > middle.value) {
+            current = head;
+            while(value < current.next.value) {
+               current = current.next;
+            }
+            latest.next = current.next;
+            current.next = latest;
+            latest.previous = current;
+            weighLeft();
+            middle = balance(middle, counter);
+         }
+         // Insert Right Wing
+         else if (value > tail.value && value < middle.value) {
+            current = tail;
+            while(value > current.previous.value) {
+               current = current.previous;
+            }
+            latest.previous = current.previous;
+            latest.next = current;
+            current.previous.next = latest;
+            current.previous = latest;
+            weighRight();
+            middle = balance(middle, counter);
+         }
+      }
+   } // hehe
+   
+
+   public int head() {
+      if (head.next == tail) {
+         int x = head.value;
+         head = null;
+         counter--;
+         return x;
+      }
+      else {
+         int x = head.value;
+         successor = head.next;
+         head = successor;
+         head.previous = null;
+         weighLeft();
+         middle = balance(middle, counter);
+         counter--;
+         return x;
+      }
+   }
+
+   public int tail() {
+      if (tail.previous == head) {
+         int y = tail.value;
+         tail = null;
+         counter--;
+         return y;
+      }
+      else {
+         int y = tail.value;
+         successor = tail.previous;
+         successor.next = null;
+         tail = successor;
+         weighRight();
+         middle = balance(middle, counter);
+         counter--;
+         return y;
+      }
+   }
+
+
+   public boolean search(int vacantSpace) {
+      if (vacantSpace == 0) {
+         return false;
+      }
+      Node current = tail;
+      while(vacantSpace != current.value) {
+         current = current.previous;
+         if (current.value > vacantSpace) {
+            return false;
+         }
+      }
+      return true;
+   }
+   
+   public int fetch(int vacantSpace) {
+      if (tail.previous == head) {
+         int y = tail.value;
+         tail = null;
+         counter--;
+         return y;
+      }
+      
+      Node current = tail;
+      while(vacantSpace != current.value) {
+         current = current.previous;
+      }
+      if (current == tail) {
+         int z = tail();
+         weighRight();
+         middle = balance(middle, counter);
+         counter--;
+         return z;
+      }
+      current.previous.next = current.next;
+      current.next.previous = current.previous;
+      int z = current.value;
+      current = null;
+      weighRight();
+      middle = balance(middle, counter);
+      counter--;
+      return z;
+   }
+
+   
+   public int peek() {
+      if (head == null) {
+         return 0;
+      }
+      int x = head.value;
+      return x;
+   }
+   
+   public int peep() {
+      if (tail == null) {
+         return 0;
+      }
+      int y = tail.value;
+      return y;
+   }
+   
+} //HEHE
